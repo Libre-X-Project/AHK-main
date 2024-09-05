@@ -3,3 +3,4 @@
 
     title os
     kernel /boot/kernel
+    module /modules/program
