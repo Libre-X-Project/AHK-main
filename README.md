@@ -1,6 +1,6 @@
 AHK -- Advanced/Adaptable Hybrid Kernel
 =======================================
-AHK Is an Hybrid Kernel based on xvX by Kap Petrov. It is designed to be fast, efficient, and adaptable.
+AHK is an Hybrid Kernel based on xvX developed at vOS Research Group. It is designed to be fast, efficient, and adaptable.
 
 How to build AHK
 ================
