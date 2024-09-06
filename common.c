@@ -116,3 +116,8 @@ extern void panic_assert(const char *file, u32int line, const char *desc)
     // Halt by going into an infinite loop.
     for(;;);
 }
+
+void printf(const char* fmt, ...)
+{
+	
+}

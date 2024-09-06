@@ -1,5 +1,5 @@
 /*
-	Fat32 Driver from AHK for Host System.
+	Fat12 Driver from AHK for Host System.
 	Do not use for production
 	Free to modify this file
 */
@@ -138,7 +138,7 @@ bool readFile(DirectoryEntry* fileEntry, FILE* disk, uint8_t* outputBuffer)
 
 int main(int argc, char** argv)
 {
-	printf("FAT32 Driver from AHK for Host Systems Linux\n");
+	printf("FAT12 Driver from AHK for Host Systems Linux\n");
 
 	if (argc < 3) 
 	{

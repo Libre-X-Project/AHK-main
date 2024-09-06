@@ -10,6 +10,21 @@ typedef          short s16int;
 typedef unsigned char  u8int;
 typedef          char  s8int;
 
+typedef u32int uint32;
+typedef u16int uint16;
+typedef u8int uint8;
+
+typedef uint32 uint32_t;
+typedef uint16 uint16_t;
+typedef uint8 uint8_t;
+
+typedef uint8_t bool;
+
+#define true 1
+#define false 0
+
+#define NULL        ((void*)0)
+
 void outb(u16int port, u8int value);
 u8int inb(u16int port);
 u16int inw(u16int port);
@@ -19,5 +34,7 @@ u16int inw(u16int port);
 
 extern void panic(const char *message, const char *file, u32int line);
 extern void panic_assert(const char *file, u32int line, const char *desc);
+
+void printf(const char* fmt, ...);
 
 #endif // COMMON_H
