@@ -2,6 +2,7 @@
 #include "isr.h"
 #include "monitor.h"
 
+bool shit = false;
 isr_t interrupt_handlers[256];
 
 void register_interrupt_handler(u8int n, isr_t handler)
@@ -19,9 +20,18 @@ void isr_handler(registers_t regs)
     }
     else
     {
-        monitor_write("unhandled interrupt: ");
-        monitor_write_dec(regs.int_no);
-        monitor_put('\n');
+        if(regs.int_no != 6)
+        {
+            monitor_write("unhandled interrupt: ");
+            monitor_write_dec(regs.int_no);
+            monitor_put('\n');
+        }
+        else
+        {
+            if(!shit)
+                monitor_write("Shit.\n");
+            shit = true;
+        }
     }
 }
 

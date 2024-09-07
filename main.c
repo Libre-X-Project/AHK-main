@@ -3,9 +3,7 @@
 #include "timer.h"
 #include "multiboot.h"
 #include "ide.h"
-#include "fat.h"
-
-char oem[] = "SPC";
+#include "fs.h"
 
 int main(unsigned int ebx)
 {
@@ -15,9 +13,7 @@ int main(unsigned int ebx)
     // Initialise the screen (by clearing it)
     monitor_clear();
 
-    monitor_write("\nxvX Operating System\nKernel: AHK 0.7.3\nOEM: ");
-    monitor_write(oem);
-    monitor_write("\n");
+    monitor_write("\nxvX Operating System\nKernel: AHK 0.9.7\n");
 
     monitor_write("Disk Driver Initialized: \n");
 
@@ -28,51 +24,59 @@ int main(unsigned int ebx)
     const uint8 NO_OF_SECTORS = 1;
     char buf[ATA_SECTOR_SIZE] = {0};
 
-    struct example 
-    {
-        int id;
-        char name[32];
-    };
+    strcpy(buf, "Hello World From Disk!");
+    ide_write_sectors(DRIVE, NO_OF_SECTORS, LBA, (uint32)buf);
 
-    struct example e;
-    e.id = 10012;
-    strcpy(e.name, "Iron Man");
+    memset(buf, 0, sizeof(buf));
+   	ide_read_sectors(DRIVE, NO_OF_SECTORS, LBA, (uint32)buf);
 
-    void* ptr;
+    monitor_write(buf);
 
-    memset(ptr, 0, sizeof(ptr));
-    readSectors(LBA + 1, 1, ptr);
-    strcpy(e.name, "FAT Read Sectors Failed!");
-    memcpy(&e, ptr, sizeof(e));
-
-    monitor_write(e.name);
-
-    readBootSector();
-    readFat();
-
-    // load sample program to check if disk or iso is corrupted
-    //monitor_write("\nSearching for /modules/program...    ");
+    monitor_write("\nLoading /modules/testmodule.txt...    ");
 
     multiboot_info_t *mbinfo = (multiboot_info_t *) ebx;
   	multiboot_module_t* modules = (multiboot_module_t*) mbinfo->mods_addr; 
   	unsigned int address_of_module = modules->mod_start;
 
- //  	if((mbinfo->mods_count) == 1)
- //  	{
- //  		monitor_write("Found program\n");
- //  		monitor_write("Starting program...\n");
-  		
- //  		typedef void (*call_module_t)(void);
- //      	call_module_t start_program = (call_module_t) address_of_module;
- //     	start_program();
+  	monitor_write("Found! Dumping contents...\n");
 
- //     	//monitor_write("\nISO Image is OK! SUCCESS!\n");
-	// }
-	// else
-	// {
-	// 	monitor_write("Program not found! FAIL!\n");
-	// 	monitor_write("ISO Image is CORRUPTED! FAIL!\n");
-	// }
+  	monitor_write((char*)address_of_module);
+
+  	monitor_write("\nGrub Module Loaded Successfully!\n");
+
+    fs_node_t testFile;
+
+    strcpy(testFile.name, "test.txt   ");
+    testFile.flags = FS_FILE;
+    testFile.inode = 0;
+    testFile.sector = 1;
+
+    writenode(testFile);
+    writedata(testFile, "Banana.");
+
+    fs_node_t testDir;
+
+    strcpy(testDir.name, "mydir       ");
+    testDir.flags = FS_DIRECTORY;
+    testDir.inode = 1;
+    testDir.sector = 3;
+
+    writenode(testDir);
+
+    fs_node_t testCap;
+
+    strcpy(testCap.name, "THEtAb.txt  ");
+    testCap.flags = FS_FILE;
+    testCap.inode = 2;
+    testCap.sector = 5;
+
+    writenode(testCap);
+    writedata(testCap, "This is a test file for testing capitals on the filenames.");
+
+    //writeroot();
+
+    monitor_write("\nDirectory: /\n");
+    listdir();
 
     return 0;
 }

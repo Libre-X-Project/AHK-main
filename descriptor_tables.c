@@ -9,7 +9,7 @@ extern void idt_flush(u32int);
 // Internal function prototypes.
 static void init_gdt();
 static void init_idt();
-static void gdt_set_gate(s32int,u32int,u32int,u8int,u8int);
+void gdt_set_gate(s32int,u32int,u32int,u8int,u8int);
 static void idt_set_gate(u8int,u32int,u16int,u8int);
 
 gdt_entry_t gdt_entries[5];
@@ -48,7 +48,7 @@ static void init_gdt()
 }
 
 // Set the value of one GDT entry.
-static void gdt_set_gate(s32int num, u32int base, u32int limit, u8int access, u8int gran)
+void gdt_set_gate(s32int num, u32int base, u32int limit, u8int access, u8int gran)
 {
     gdt_entries[num].base_low    = (base & 0xFFFF);
     gdt_entries[num].base_middle = (base >> 16) & 0xFF;
