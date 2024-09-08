@@ -44,39 +44,8 @@ int main(unsigned int ebx)
 
   	monitor_write("\nGrub Module Loaded Successfully!\n");
 
-    fs_node_t testFile;
-
-    strcpy(testFile.name, "test.txt   ");
-    testFile.flags = FS_FILE;
-    testFile.inode = 0;
-    testFile.sector = 1;
-
-    writenode(testFile);
-    writedata(testFile, "Banana.");
-
-    fs_node_t testDir;
-
-    strcpy(testDir.name, "mydir       ");
-    testDir.flags = FS_DIRECTORY;
-    testDir.inode = 1;
-    testDir.sector = 3;
-
-    writenode(testDir);
-
-    fs_node_t testCap;
-
-    strcpy(testCap.name, "THEtAb.txt  ");
-    testCap.flags = FS_FILE;
-    testCap.inode = 2;
-    testCap.sector = 5;
-
-    writenode(testCap);
-    writedata(testCap, "This is a test file for testing capitals on the filenames.");
-
-    //writeroot();
-
-    monitor_write("\nDirectory: /\n");
-    listdir();
+    // TODO:
+    // Initialize File System here... ( set fs_root to initialise_disk(); )
 
     return 0;
 }

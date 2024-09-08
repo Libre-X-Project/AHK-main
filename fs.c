@@ -1,143 +1,55 @@
 #include "fs.h"
 
-fs_node_t root[4] = {0};
+fs_node_t *fs_root = 0; // The root of the filesystem.
 
-fs_node_t readdir(fs_node_t node)
+uint32_t read_fs(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer)
 {
-    fs_node_t r;
+	// Has the node got a read callback?
+	if (node->read != 0)
+	   return node->read(node, offset, size, buffer);
+	else
+		return 0;
+} 
 
-    if(node.flags != FS_DIRECTORY)
-    {
-        monitor_write("ERROR READING DIRECTORY! SPECIFIED NODE IS A FILE! INVALID DIRECTORY\n");
-    }
+uint32_t write_fs(fs_node_t *node, uint32_t offset, uint32_t size, uint8_t *buffer)
+{
+    // Has the node got a write callback?
+    if (node->write != 0)
+        return node->write(node, offset, size, buffer);
     else
-    {
-        r = readnode(node);
-    }
-
-    return r;
+        return 0;
 }
 
-fs_node_t readnode(fs_node_t node)
+void open_fs(fs_node_t *node, uint8_t read, uint8_t write)
 {
-    fs_node_t result;
-
-    const int DRIVE = ata_get_drive_by_model("QEMU HARDDISK");
-    const uint32 LBA = 0;
-    const uint8 NO_OF_SECTORS = 1;
-    char buf[ATA_SECTOR_SIZE] = {0};
-
-    memset(buf, 0, sizeof(buf));
-    ide_read_sectors(DRIVE, NO_OF_SECTORS, LBA + node.sector, (uint32)buf);
-    memcpy(&result, buf, sizeof(result));
-
-    return result;
+    // Has the node got an open callback?
+    if (node->open != 0)
+        return node->open(node);
 }
 
-void writenode(fs_node_t node)
+void close_fs(fs_node_t *node)
 {
-    const int DRIVE = ata_get_drive_by_model("QEMU HARDDISK");
-    const uint32 LBA = 0;
-    const uint8 NO_OF_SECTORS = 1;
-    char buf[ATA_SECTOR_SIZE] = {0};
-
-    memset(buf, 0, sizeof(buf));
-    memcpy(buf, &node, sizeof(node));
-    ide_write_sectors(DRIVE, NO_OF_SECTORS, LBA + node.sector, (uint32)buf);
-
-    for (int i = 0; i < 4; i++) 
-    {
-        if (strcmp(root[i].name, "") == 0) 
-        {
-            root[i] = node;
-            break;
-        }
-    }
+    // Has the node got a close callback?
+    if (node->close != 0)
+        return node->close(node);
 }
 
-void writedata(fs_node_t node, char* data)
+struct dirent *readdir_fs(fs_node_t *node, uint32_t index)
 {
-    const int DRIVE = ata_get_drive_by_model("QEMU HARDDISK");
-    const uint32 LBA = 0;
-    const uint8 NO_OF_SECTORS = 1;
-    char buf[ATA_SECTOR_SIZE] = {0};
-
-    memset(buf, 0, sizeof(buf));
-    strcpy(buf, data);
-    ide_write_sectors(DRIVE, NO_OF_SECTORS, LBA + node.sector + 1, (uint32)buf);
+    // Is the node a directory, and does it have a callback?
+    if ( (node->flags&0x7) == FS_DIRECTORY &&
+         node->readdir != 0 )
+        return node->readdir(node, index);
+    else
+        return 0;
 }
 
-void readdata(fs_node_t node, char* bufferOut)
+fs_node_t *finddir_fs(fs_node_t *node, char *name)
 {
-    const int DRIVE = ata_get_drive_by_model("QEMU HARDDISK");
-    const uint32 LBA = 0;
-    const uint8 NO_OF_SECTORS = 1;
-    char buf[ATA_SECTOR_SIZE] = {0};
-
-    memset(buf, 0, sizeof(buf));
-    ide_read_sectors(DRIVE, NO_OF_SECTORS, LBA + node.sector + 1, (uint32)buf);
-    memcpy(bufferOut, buf, ATA_SECTOR_SIZE);
-}
-
-void writeroot()
-{
-    const int DRIVE = ata_get_drive_by_model("QEMU HARDDISK");
-    const uint32 LBA = 0;
-    const uint8 NO_OF_SECTORS = 1;
-    char buf[ATA_SECTOR_SIZE] = {0};
-
-    memset(buf, 0, sizeof(buf));
-    memcpy(buf, root, sizeof(root));
-    ide_write_sectors(DRIVE, NO_OF_SECTORS, LBA + 6, (uint32)buf);
-}
-
-void readroot()
-{
-    const int DRIVE = ata_get_drive_by_model("QEMU HARDDISK");
-    const uint32 LBA = 0;
-    const uint8 NO_OF_SECTORS = 1;
-    char buf[ATA_SECTOR_SIZE] = {0};
-
-    memset(buf, 0, sizeof(buf));
-    ide_read_sectors(DRIVE, NO_OF_SECTORS, LBA + 6, (uint32)buf);
-    memcpy(root, buf, sizeof(root));
-}
-
-fs_node_t* getroot()
-{
-    return root;
-}
-
-void GetRootDir(fs_node_t* node)
-{
-    node = root;
-}
-
-void listdir()
-{
-    //readroot();
-
-    for(int i = 0; i < 4; i++)
-    {
-        if(root[i].flags != FS_NONE)
-        {
-            monitor_write("Filename: ");
-            monitor_write(root[i].name);
-            monitor_write("\n");
-
-            if(root[i].flags == FS_DIRECTORY)
-            {
-                monitor_write("(Directory)\n");
-            }
-            else
-            {
-                monitor_write("(File)\n");
-                monitor_write("Contents: \n");
-                char rd[ATA_SECTOR_SIZE];
-                readdata(root[i], rd);
-                monitor_write(rd);
-                monitor_write("\n");
-            }
-        }
-    }
+    // Is the node a directory, and does it have a callback?
+    if ( (node->flags&0x7) == FS_DIRECTORY &&
+         node->finddir != 0 )
+        return node->finddir(node, name);
+    else
+        return 0;
 }
