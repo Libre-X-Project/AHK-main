@@ -1,6 +1,6 @@
 AHK -- Advanced/Adaptable Hybrid Kernel
 =======================================
-AHK is an Hybrid Kernel based on xvX developed at vOS Research Group. It is designed to be fast, efficient, and adaptable.
+AHK is an hybrid kernel designed to be fast, efficient, and adaptable (compatible to any operating system, even your own). 
 
 How to build AHK
 ================
@@ -14,3 +14,4 @@ Building ` DEVELOPMENT ` Kernel
  
 	$ make clean
 
+Tip: Use -monitor stdio in qemu to debug faster.
