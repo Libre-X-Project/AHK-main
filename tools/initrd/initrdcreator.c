@@ -10,7 +10,7 @@ struct initrd_header
 
 int main(char argc, char **argv)
 {
-   printf("Welcome to xvX I_Creator! Here you can create an Initial Ramdisk image for AHK.\n");
+   printf("Welcome to xvX I_Creator! Here you can create an Initial Ramdisk image for AFS.\n");
    int nheaders = (argc-1)/2;
    struct initrd_header headers[64];
    printf("Size of header: %d\n", sizeof(struct initrd_header));
