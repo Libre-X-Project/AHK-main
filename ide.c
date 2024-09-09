@@ -526,7 +526,9 @@ int ide_read_sectors(uint8 drive, uint8 num_sectors, uint32 lba, uint32 buffer) 
     }
     // 2: Check if inputs are valid:
     else if (((lba + num_sectors) > g_ide_devices[drive].size) && (g_ide_devices[drive].type == IDE_ATA)) {
-        monitor_write("IDE ERROR: LBA address is greater than the available drive sectors");
+        monitor_write("IDE ERROR: LBA address is greater than the available drive sectors: ");
+        monitor_write_dec(g_ide_devices[drive].size);
+        monitor_write("\n");
         return -2;
     }
     // 3: Read in PIO Mode through Polling & IRQs:
