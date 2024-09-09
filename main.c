@@ -13,7 +13,7 @@ int main(unsigned int ebx)
     // Initialise the screen (by clearing it)
     monitor_clear();
 
-    monitor_write("\nxvX Operating System\nKernel: AHK 0.9.8\n");
+    monitor_write("\nxvX Operating System\nKernel: AHK 0.9.9\n");
 
     monitor_write("Disk Driver Initialized: \n");
 
@@ -38,40 +38,7 @@ int main(unsigned int ebx)
    	int result; // afs header
     memcpy(&result, buf, sizeof(int));
 
-    monitor_write("AFS Header: ");
-    monitor_write_dec(result);
-    monitor_write("\n");
-
-    struct initrd_header headers[64];
-    memcpy(headers, buf + sizeof(int), sizeof(struct initrd_header) * 64);
-
-    monitor_write("Listing first file on disk...\n");
-
-    monitor_write("Name: ");
-    monitor_write(headers[0].name);
-    monitor_write("\n");
-
-	monitor_write("Magic: ");
-    monitor_write(headers[0].magic);
-    monitor_write("\n");    
-
-   //  monitor_write(buf);
-
-   //  monitor_write("\nLoading /modules/testmodule.txt...    ");
-
-   //  multiboot_info_t *mbinfo = (multiboot_info_t *) ebx;
-  	// multiboot_module_t* modules = (multiboot_module_t*) mbinfo->mods_addr; 
-  	// unsigned int address_of_module = modules->mod_start;
-
-  	// monitor_write("Found! Dumping contents...\n");
-
-  	// monitor_write((char*)address_of_module);
-
-  	// monitor_write("\nGrub Module Loaded Successfully!\n");
-
     monitor_write("\nReading Hard Disk and Verifying AFS Header...    ");
-    // TODO:
-    // Initialize File System here... ( set fs_root to initialise_disk(); )
 
     if(result < 0)
     {
@@ -82,6 +49,61 @@ int main(unsigned int ebx)
 	{
 		monitor_write("SUCCESS!\n");
 	}
+
+    monitor_write("Files found in / (root): ");
+    monitor_write_dec(result);
+    monitor_write("\n");
+
+    struct initrd_header headers[64];
+    memcpy(headers, buf + sizeof(int), sizeof(struct initrd_header) * 64);
+
+    monitor_write("Listing files on disk...\n");
+
+ //    monitor_write("Name: ");
+ //    monitor_write(headers[0].name);
+ //    monitor_write("\n");
+
+	// monitor_write("Magic: ");
+ //    monitor_write_hex(headers[0].magic);
+ //    monitor_write("\n");
+
+ //    monitor_write("Offset: ");
+ //    monitor_write_dec(headers[0].offset);
+ //    monitor_write("\n");
+
+	// monitor_write("Length: ");
+ //    monitor_write_dec(headers[0].length);
+ //    monitor_write("\n");    
+
+ //    monitor_write("Contents: \n");
+
+ //    char content[512];
+ //    memcpy(content, buf + sizeof(int) + sizeof(struct initrd_header) * 64 + headers[0].length, sizeof(content));
+
+ //    monitor_write(content);
+
+    int privI = 0;
+
+    for(int i = 0; i < result; i++)
+    {
+    	monitor_write("Name: ");
+	    monitor_write(headers[i].name);
+	    monitor_write("\n");
+
+	    monitor_write("Contents: \n");
+
+	    char content[512];
+
+	    if(i == 0)
+	    	memcpy(content, buf + sizeof(int) + sizeof(struct initrd_header) * 64, headers[i].length);
+	    else
+	    	memcpy(content, buf + sizeof(int) + sizeof(struct initrd_header) * 64 + headers[privI].length, headers[i].length);
+
+	    monitor_write(content);
+	    monitor_write("\n");
+
+	    privI = i;
+    }
 
     return 0;
 }
